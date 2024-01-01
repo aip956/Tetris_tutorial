@@ -1,3 +1,5 @@
+// https://www.youtube.com/watch?v=rAUn1Lom6dw
+
 document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('.grid')
     let squares = Array.from(document.querySelectorAll('.grid div'))
@@ -6,6 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const width = 10
     let nextRandom = 0
     let timerId
+    let score = 0
+    const colors = [
+        'orange', 
+        'red', 
+        'purple',
+        'green',
+        'blue'
+    ]
 
 
     // console.log("squares:", squares);
@@ -60,15 +70,16 @@ console.log("theTets: ", theTets[0][0])
 // draw the Tetromino and first rotation
 function draw() {
     current.forEach(index => {
-        squares[currentPosition + index].classList.add("tetro") 
+        squares[currentPosition + index].classList.add("tetro")
+        squares[currentPosition + index].style.backgroundColor = colors[random]
     })
 }
 
-// draw()
-
+ // Undraw
 function undraw() {
     current.forEach(index => {
         squares[currentPosition + index].classList.remove("tetro")
+        squares[currentPosition + index].style.backgroundColor = ''
     })
 }
 
@@ -110,6 +121,9 @@ function freeze() {
         currentPosition = 4
         draw()
         displayShape()
+        console.log("line 114")
+        addScore()
+        gameOver()
     }
 }
 
@@ -153,7 +167,7 @@ function rotate() {
 // Show the up-next tetromino in the mini-grid
 const displaySquares = document.querySelectorAll('.mini-grid div')
 const displayWidth = 4
-let displayIndex = 0
+const displayIndex = 0
 
 
 // The Tetros without rotations
@@ -164,34 +178,61 @@ const upNextTetro = [
     [0, 1, displayWidth, displayWidth+1], // oTet
     [1, displayWidth+1, displayWidth*2+1, displayWidth*3+1] // iTet
 ]
-
+// Display the next shape in the mini-grid display
 function displayShape() {
     //remove any trace of a tetromino form the entire grid
     displaySquares.forEach(square => {
       square.classList.remove('tetro')
-    //   square.style.backgroundColor = ''
+      square.style.backgroundColor = ''
     })
     upNextTetro[nextRandom].forEach( index => {
       displaySquares[displayIndex + index].classList.add('tetro')
-    //   displaySquares[displayIndex + index].style.backgroundColor = colors[nextRandom]
+      displaySquares[displayIndex + index].style.backgroundColor = colors[nextRandom]
     })
   }
 
 
-// Add button functionality
+// Add start/pause button functionality
 startBtn.addEventListener('click', () => {
     if (timerId) {
         clearInterval(timerId)
         timerId = null
     } else {
         draw()
-        timerId = setInterval(moveDown, 1000)
+        timerId = setInterval(moveDown, 500)
         nextRandom = Math.floor(Math.random() * theTets.length)
         displayShape()
     }
 })
 
+// Add score
+function addScore() {
+    for (let i = 0; i < 199; i += width) {
+        // Every square that makes a row
+        const row = [i, i+1, i+2, i+3, i+4, i+5, i+6, i+7, i+8, i+9] 
+        // If every square in the row is taken
+        if(row.every(index => squares[index].classList.contains('taken'))) {
+            score += 10; // Add to the score
+            scoreDisplay.innerHTML = score;
+            row.forEach(index => {
+                squares[index].classList.remove('taken')
+                squares[index].classList.remove('tetro')
+                squares[index].style.backgroundColor = ''
+            })
+            // Remove the row
+            const squaresRemoved = squares.splice(i, width)
+            squares.forEach(cell => grid.appendChild(cell)) 
+        }
+    }
+}
+
+// Game over
+function gameOver() {
+    if(current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+        scoreDisplay.innerHTML = 'end'
+        clearInterval(timerId)
+    }
+}
 
 
-
-}) 
+}) // Ends the event listener line 1 
