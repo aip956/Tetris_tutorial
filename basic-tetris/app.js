@@ -70,8 +70,16 @@ console.log("theTets: ", theTets[0][0])
 // draw the Tetromino and first rotation
 function draw() {
     current.forEach(index => {
-        squares[currentPosition + index].classList.add("tetro")
-        squares[currentPosition + index].style.backgroundColor = colors[random]
+        console.log("CurrPos: ", currentPosition)
+        console.log("Ind: ", index)
+        console.log("squ[curr+ind]: ", squares[currentPosition + index])
+        const nextPos = currentPosition + index;
+        if (nextPos < squares.length) {
+            squares[nextPos].classList.add("tetro");
+            squares[nextPos].style.backgroundColor = colors[random];
+        }
+        // squares[currentPosition + index].classList.add("tetro")
+        // squares[currentPosition + index].style.backgroundColor = colors[random]
     })
 }
 
@@ -111,7 +119,9 @@ function moveDown() {
 
 // freeze at bottom
 function freeze() {
-    if (current.some(index => squares[currentPosition + index + width].classList.contains("taken"))) {
+    if (current.some(index => squares[currentPosition + index + width] === undefined || squares[currentPosition + index + width].classList.contains("taken"))) {
+
+    // if (current.some(index => squares[currentPosition + index + width].classList.contains("taken"))) {
         current.forEach(index => squares[currentPosition + index].classList.add("taken"))
         // Start a new tetromino falling
         random = nextRandom
@@ -134,7 +144,7 @@ function moveLeft() {
 
     if (!isAtLeftEdge) currentPosition -= 1
 
-    if (current.some(index => squares[currentPosition + index].classList.contains("takein"))) {
+    if (current.some(index => squares[currentPosition + index].classList.contains("taken"))) {
         currentPosition += 1
     }
     draw()
