@@ -214,6 +214,18 @@ startBtn.addEventListener('click', () => {
         displayShape()
     }
 })
+// Remove the row from the squares array
+function removeRow() {
+    const removedRow = squares.splice(rowIndex, width);
+    // Remove styles
+    removedRow.forEach(square => {
+        square.classList.remove('taken', 'tetro');
+        square.style.backgroundColor = '';
+    })
+    // Prepend a new row at the beginning of the squares array
+    squares = removedRow.concat(squares);
+    squares.forEach(cell => grid.appendChild(cell));
+}
 
 // Add score
 function addScore() {
@@ -224,14 +236,8 @@ function addScore() {
         if(row.every(index => squares[index].classList.contains('taken'))) {
             score += 10; // Add to the score
             scoreDisplay.innerHTML = score;
-            row.forEach(index => {
-                squares[index].classList.remove('taken')
-                squares[index].classList.remove('tetro')
-                squares[index].style.backgroundColor = ''
-            })
+            removeRow();
             // Remove the row
-            const squaresRemoved = squares.splice(i, width)
-            squares.forEach(cell => grid.appendChild(cell)) 
         }
     }
 }
