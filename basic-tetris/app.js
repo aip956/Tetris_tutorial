@@ -94,6 +94,23 @@ function undraw() {
 // make the tetromino move down every second; invoked when browser loads
 // timerId = setInterval(moveDown, 500)
 
+// Variable to store the interval ID for continuous drop
+let moveDownInterval;
+
+// Function to start moving down continuously
+function startMoveDown() {
+    clearInterval(timerId); // Clear the previous timerID
+    clearInterval(moveDownInterval);
+    moveDownInterval = setInterval(moveDown, 100); 
+}
+
+function stopMoveDown() {
+    clearInterval(moveDownInterval);
+    if (!timerId) {
+        timerId = setInterval(moveDown, 500); // Reset the timer
+    }
+}
+
 // Assign functions to keyCodes
 function control(e) {
     if(e.keyCode === 37) {
@@ -103,11 +120,20 @@ function control(e) {
     } else if (e.keyCode === 39) {
         moveRight()
     } else if (e.keyCode === 40) {
-        // moveDown()
+        startMoveDown()
     }
 }
 document.addEventListener('keyup', control)
 
+// Event listener for keydown event
+document.addEventListener('keydown', control);
+
+// Attach stopMoveDown function to keyup event to stop movement when key released
+document.addEventListener('keyup', (e) => {
+    if (e.key === 40) {
+        stopMoveDown();
+    }
+})
 // move down function
 function moveDown() {
     undraw();
@@ -215,7 +241,7 @@ startBtn.addEventListener('click', () => {
     }
 })
 // Remove the row from the squares array
-function removeRow() {
+function removeRow(rowIndex) {
     const removedRow = squares.splice(rowIndex, width);
     // Remove styles
     removedRow.forEach(square => {
@@ -236,7 +262,7 @@ function addScore() {
         if(row.every(index => squares[index].classList.contains('taken'))) {
             score += 10; // Add to the score
             scoreDisplay.innerHTML = score;
-            removeRow();
+            removeRow(i);
             // Remove the row
         }
     }
@@ -249,6 +275,4 @@ function gameOver() {
         clearInterval(timerId)
     }
 }
-
-
 }) // Ends the event listener line 1 
