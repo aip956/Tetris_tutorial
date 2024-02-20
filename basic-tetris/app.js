@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'green',
         'blue'
     ]
-
-
     // console.log("squares:", squares);
 // The Tetrominoes
 const jTet = [
@@ -26,46 +24,43 @@ const jTet = [
     [1, width+1, width*2+1, width*2],
     [width, width*2, width*2+1, width*2+2]
 ]
-
 const zTet = [
-    [1, width, width+1, width+2],
+    [0, width, width+1, width+2],
     [1, width+1, width+2, width*2+1],
     [width, width+1, width+2, width*2+1],
     [1, width, width+1,width*2+1]
+    // [1, width, width+1, width+2],
+    // [1, width+1, width+2, width*2+1],
+    // [width, width+1, width+2, width*2+1],
+    // [1, width, width+1,width*2+1]
 ]
-
 const tTet = [
     [1,width,width+1,width+2],
     [1,width+1,width+2,width*2+1],
     [width,width+1,width+2,width*2+1],
     [1,width,width+1,width*2+1]
     ]
-
 const oTet = [
     [0, 1, width, width+1],
     [0, 1, width, width+1],
     [0, 1, width, width+1],
     [0, 1, width, width+1]
 ]
-
 const iTet = [
     [1, width+1, width*2+1, width*3+1],
     [width, width+1, width+2, width+3],
     [1, width+1, width*2+1, width*3+1],
     [width, width+1, width+2, width+3],
 ]
-
 const theTets = [jTet, zTet, tTet, oTet, iTet]
-
 
 let currentPosition = 4
 let currentRotation = 0
+console.log("theTets: ", theTets[0][0])
 // randomly select a tetro
 let random = Math.floor(Math.random()*theTets.length)
 console.log("random: ", random)
 let current = theTets[random][currentRotation]
-console.log("theTets: ", theTets[0][0])
-
 
 // draw the Tetromino and first rotation
 function draw() {
@@ -73,13 +68,13 @@ function draw() {
         console.log("CurrPos: ", currentPosition)
         console.log("Ind: ", index)
         console.log("squ[curr+ind]: ", squares[currentPosition + index])
-        const nextPos = currentPosition + index;
-        if (nextPos < squares.length) {
-            squares[nextPos].classList.add("tetro");
-            squares[nextPos].style.backgroundColor = colors[random];
-        }
-        // squares[currentPosition + index].classList.add("tetro")
-        // squares[currentPosition + index].style.backgroundColor = colors[random]
+        // const nextPos = currentPosition + index;
+        // if (nextPos < squares.length) {
+            // squares[nextPos].classList.add("tetro");
+            // squares[nextPos].style.backgroundColor = colors[random];
+        // }
+        squares[currentPosition + index].classList.add("tetro")
+        squares[currentPosition + index].style.backgroundColor = colors[random]
     })
 }
 
@@ -95,21 +90,21 @@ function undraw() {
 // timerId = setInterval(moveDown, 500)
 
 // Variable to store the interval ID for continuous drop
-let moveDownInterval;
+// let moveDownInterval;
 
 // Function to start moving down continuously
-function startMoveDown() {
-    clearInterval(timerId); // Clear the previous timerID
-    clearInterval(moveDownInterval);
-    moveDownInterval = setInterval(moveDown, 100); 
-}
+// function startMoveDown() {
+//     clearInterval(timerId); // Clear the previous timerID
+//     clearInterval(moveDownInterval);
+//     moveDownInterval = setInterval(moveDown, 100); 
+// }
 
-function stopMoveDown() {
-    clearInterval(moveDownInterval);
-    if (!timerId) {
-        timerId = setInterval(moveDown, 500); // Reset the timer
-    }
-}
+// function stopMoveDown() {
+//     clearInterval(moveDownInterval);
+//     if (!timerId) {
+//         timerId = setInterval(moveDown, 500); // Reset the timer
+//     }
+// }
 
 // Assign functions to keyCodes
 function control(e) {
@@ -120,20 +115,20 @@ function control(e) {
     } else if (e.keyCode === 39) {
         moveRight()
     } else if (e.keyCode === 40) {
-        startMoveDown()
+        moveDown() // used to be startMoveDown
     }
 }
 document.addEventListener('keyup', control)
 
 // Event listener for keydown event
-document.addEventListener('keydown', control);
+// document.addEventListener('keydown', control);
 
 // Attach stopMoveDown function to keyup event to stop movement when key released
-document.addEventListener('keyup', (e) => {
-    if (e.key === 40) {
-        stopMoveDown();
-    }
-})
+// document.addEventListener('keyup', (e) => {
+//     if (e.key === 40) {
+//         stopMoveDown();
+//     }
+// })
 // move down function
 function moveDown() {
     undraw();
@@ -145,9 +140,9 @@ function moveDown() {
 
 // freeze at bottom
 function freeze() {
-    if (current.some(index => squares[currentPosition + index + width] === undefined || squares[currentPosition + index + width].classList.contains("taken"))) {
+//     if (current.some(index => squares[currentPosition + index + width] === undefined || squares[currentPosition + index + width].classList.contains("taken"))) {
 
-    // if (current.some(index => squares[currentPosition + index + width].classList.contains("taken"))) {
+    if (current.some(index => squares[currentPosition + index + width].classList.contains("taken"))) {
         current.forEach(index => squares[currentPosition + index].classList.add("taken"))
         // Start a new tetromino falling
         random = nextRandom
@@ -189,6 +184,29 @@ function moveRight() {
     draw()
 }
 
+// Fix rotation of tet at the edge
+function isAtRight() {
+    return current.some(index => (currentPosition + index + 1) % width === 0)
+}
+function isAtLeft() {
+    return current.some(index => (currentPosition + index) % width === 0)
+}
+
+function checkRotatedPosition(P) {
+    P = P || currentPosition // get current position. Then check if the piece is near the left side.
+    if ((P + 1) % width < 4) { // add 1 because the pos ind can be 1 less than where the piece is
+        if (isAtRight()) {  // use actual position to check if it's fliped over to right side
+            currentPosition += 1 // if so, ad one to wrap it back around
+            checkRotatedPosition(P) // check again; pass position from start since long block might need to move more
+        }
+    }
+    else if (P % width > 5) {
+        if (isAtLeft()) {
+            currentPosition -= 1
+            checkRotatedPosition(P)
+        }
+    }
+}
 // Rotate the tetromino
 function rotate() {
     undraw()
@@ -209,7 +227,7 @@ const displayIndex = 0
 // The Tetros without rotations
 const upNextTetro = [
     [1, displayWidth+1, displayWidth*2+1, 2], // jTet
-    [1, displayWidth, displayWidth+1, displayWidth+2], // zTet
+    [0, displayWidth, displayWidth+1, displayWidth*2+1], // zTet
     [1,displayWidth,displayWidth+1,displayWidth+2], // tTet
     [0, 1, displayWidth, displayWidth+1], // oTet
     [1, displayWidth+1, displayWidth*2+1, displayWidth*3+1] // iTet
@@ -241,17 +259,17 @@ startBtn.addEventListener('click', () => {
     }
 })
 // Remove the row from the squares array
-function removeRow(rowIndex) {
-    const removedRow = squares.splice(rowIndex, width);
-    // Remove styles
-    removedRow.forEach(square => {
-        square.classList.remove('taken', 'tetro');
-        square.style.backgroundColor = '';
-    })
-    // Prepend a new row at the beginning of the squares array
-    squares = removedRow.concat(squares);
-    squares.forEach(cell => grid.appendChild(cell));
-}
+// function removeRow(rowIndex) {
+//     const removedRow = squares.splice(rowIndex, width);
+//     // Remove styles
+//     removedRow.forEach(square => {
+//         square.classList.remove('taken', 'tetro');
+//         square.style.backgroundColor = '';
+//     })
+//     // Prepend a new row at the beginning of the squares array
+//     squares = removedRow.concat(squares);
+//     squares.forEach(cell => grid.appendChild(cell));
+// }
 
 // Add score
 function addScore() {
@@ -262,7 +280,15 @@ function addScore() {
         if(row.every(index => squares[index].classList.contains('taken'))) {
             score += 10; // Add to the score
             scoreDisplay.innerHTML = score;
-            removeRow(i);
+            row.forEach(index => {
+                squares[index].classList.remove('taken')
+                squares[index].classList.remove('tetro')
+                squares[index].style.backgroundColor = ''
+            })
+            const squaresRemoved = squares.splice(i, width)
+            squares = squaresRemoved.concat(squares)
+            squares.forEach(cell => grid.appendChild(cell))
+
             // Remove the row
         }
     }
