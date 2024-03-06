@@ -29,10 +29,7 @@ const zTet = [
     [1, width+1, width+2, width*2+1],
     [width, width+1, width+2, width*2+1],
     [1, width, width+1,width*2+1]
-    // [1, width, width+1, width+2],
-    // [1, width+1, width+2, width*2+1],
-    // [width, width+1, width+2, width*2+1],
-    // [1, width, width+1,width*2+1]
+
 ]
 const tTet = [
     [1,width,width+1,width+2],
@@ -68,11 +65,7 @@ function draw() {
         console.log("CurrPos: ", currentPosition)
         console.log("Ind: ", index)
         console.log("squ[curr+ind]: ", squares[currentPosition + index])
-        // const nextPos = currentPosition + index;
-        // if (nextPos < squares.length) {
-            // squares[nextPos].classList.add("tetro");
-            // squares[nextPos].style.backgroundColor = colors[random];
-        // }
+
         squares[currentPosition + index].classList.add("tetro")
         squares[currentPosition + index].style.backgroundColor = colors[random]
     })
@@ -86,25 +79,6 @@ function undraw() {
     })
 }
 
-// make the tetromino move down every second; invoked when browser loads
-// timerId = setInterval(moveDown, 500)
-
-// Variable to store the interval ID for continuous drop
-// let moveDownInterval;
-
-// Function to start moving down continuously
-// function startMoveDown() {
-//     clearInterval(timerId); // Clear the previous timerID
-//     clearInterval(moveDownInterval);
-//     moveDownInterval = setInterval(moveDown, 100); 
-// }
-
-// function stopMoveDown() {
-//     clearInterval(moveDownInterval);
-//     if (!timerId) {
-//         timerId = setInterval(moveDown, 500); // Reset the timer
-//     }
-// }
 
 // Assign functions to keyCodes
 function control(e) {
@@ -120,16 +94,6 @@ function control(e) {
 }
 document.addEventListener('keyup', control)
 
-// Event listener for keydown event
-// document.addEventListener('keydown', control);
-
-// Attach stopMoveDown function to keyup event to stop movement when key released
-// document.addEventListener('keyup', (e) => {
-//     if (e.key === 40) {
-//         stopMoveDown();
-//     }
-// })
-// move down function
 function moveDown() {
     undraw();
     currentPosition += width;
@@ -258,18 +222,7 @@ startBtn.addEventListener('click', () => {
         displayShape()
     }
 })
-// Remove the row from the squares array
-// function removeRow(rowIndex) {
-//     const removedRow = squares.splice(rowIndex, width);
-//     // Remove styles
-//     removedRow.forEach(square => {
-//         square.classList.remove('taken', 'tetro');
-//         square.style.backgroundColor = '';
-//     })
-//     // Prepend a new row at the beginning of the squares array
-//     squares = removedRow.concat(squares);
-//     squares.forEach(cell => grid.appendChild(cell));
-// }
+
 
 // Add score
 function addScore() {
@@ -288,7 +241,6 @@ function addScore() {
             const squaresRemoved = squares.splice(i, width)
             squares = squaresRemoved.concat(squares)
             squares.forEach(cell => grid.appendChild(cell))
-
             // Remove the row
         }
     }
@@ -302,3 +254,4 @@ function gameOver() {
     }
 }
 }) // Ends the event listener line 1 
+
