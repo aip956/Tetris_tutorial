@@ -289,8 +289,31 @@ startBtn.addEventListener('click', () => {
 // Recalculate and redraw ghost piece
 function updateGhostPieceAfterClearingRow() {
     undrawGhostPiece();
-
-    
+    for (let i = 0; i < 199; i+= width) {
+        // Every square that makes a row
+        const row = [i, i+1, i+2, i+3, i+4, i+5, i+6, i+7, i+8, i+9];
+        // If every row taken
+        if (row.every(index => squares[index].classList.contains('taken'))) {
+            score += 10; // Add to the score
+            scoreDisplay.innerHTML = score;
+            row.forEach(index => {
+                squares[index].classList.remove('taken')
+                squares[index].classList.remove('tetro')
+                squares[index].style.backgroundColor = '';
+        })
+        const squaresRemoved = squares.splice(i, width)
+            squares = squaresRemoved.concat(squares)
+            squares.forEach(cell => grid.appendChild(cell))
+            // Remove the row
+            console.log("Row complete")
+            if (i < width) {
+                // Adjust the currentPosition only if the row is at the bottom
+                currentPosition -= width;
+            }
+            calculateGhostPiece();
+            drawGhostPiece();
+        }
+    }
     currentPosition -= width; // Adjust the current position to account for cleared row
     calculateGhostPiece();
     drawGhostPiece();
