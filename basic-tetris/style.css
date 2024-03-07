@@ -13,8 +13,14 @@
 .grid div {
     height: 20px;
     width: 20px;
+    /* background-color: rgba(0, 0, 0, 0.8); */
 
 }
+/* .grid div.taken:not(.tetro) {
+    height: 20px;
+    width: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+} */
 
 .tetro {
     background-color: blue;
@@ -32,4 +38,8 @@
 .mini-grid div {
     height: 20px;
     width: 20px;
+}
+
+.ghost {
+    background-color: rgba(120, 116, 116, 0.5);
 }

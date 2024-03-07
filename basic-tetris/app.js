@@ -9,47 +9,65 @@ document.addEventListener('DOMContentLoaded', () => {
     let nextRandom = 0
     let timerId
     let score = 0
+    let ghostPiece;
     const colors = [
-        'orange', 
+        'cyan',
+        'yellow',
+        'magenta',
+        'lime',
         'red', 
-        'purple',
-        'green',
-        'blue'
+        'blue',
+        'orange'
     ]
     // console.log("squares:", squares);
 // The Tetrominoes
-const jTet = [
-    [1, width+1, width*2+1, 2],
-    [width, width+1, width+2, width*2+2],
-    [1, width+1, width*2+1, width*2],
-    [width, width*2, width*2+1, width*2+2]
+const iTet = [
+    [width, width+1, width+2, width+3],
+    [1, width+1, width*2+1, width*3+1],
+    [width, width+1, width+2, width+3],
+    [1, width+1, width*2+1, width*3+1],
 ]
-const zTet = [
-    [0, width, width+1, width+2],
-    [1, width+1, width+2, width*2+1],
-    [width, width+1, width+2, width*2+1],
-    [1, width, width+1,width*2+1]
-
-]
-const tTet = [
-    [1,width,width+1,width+2],
-    [1,width+1,width+2,width*2+1],
-    [width,width+1,width+2,width*2+1],
-    [1,width,width+1,width*2+1]
-    ]
 const oTet = [
     [0, 1, width, width+1],
     [0, 1, width, width+1],
     [0, 1, width, width+1],
     [0, 1, width, width+1]
 ]
-const iTet = [
-    [1, width+1, width*2+1, width*3+1],
-    [width, width+1, width+2, width+3],
-    [1, width+1, width*2+1, width*3+1],
-    [width, width+1, width+2, width+3],
+const tTet = [
+    [1,width,width+1,width+2],
+    [1,width+1,width+2,width*2+1],
+    [width,width+1,width+2,width*2+1],
+    [1,width,width+1,width*2+1]
 ]
-const theTets = [jTet, zTet, tTet, oTet, iTet]
+const sTet = [
+    [1, 2, width, width+1],
+    [0, width, width+1, width*2+1],
+    [1, 2, width, width+1],
+    [0, width, width+1, width*2+1]
+]
+const zTet = [
+    [0, 1, width+1, width+2],
+    [1, width, width+1,width*2],
+    [0, 1, width+1, width*2],
+    [1, width, width+1,width*2]
+]
+const jTet = [
+    [1, width+1, width*2+1, 2],
+    [width, width+1, width+2, width*2+2],
+    [1, width+1, width*2+1, width*2],
+    [width, width*2, width*2+1, width*2+2]
+]
+const lTet = [
+    [width, width+1, width+2, 2],
+    [1, width+1, width*2+1, width*2+2],
+    [width, width+1, width+2, 2],
+    [0, 1, width+1, width*2+1]
+]
+
+
+
+
+const theTets = [iTet, oTet, tTet, sTet, zTet, jTet, lTet]
 
 let currentPosition = 4
 let currentRotation = 0
@@ -69,6 +87,7 @@ function draw() {
         squares[currentPosition + index].classList.add("tetro")
         squares[currentPosition + index].style.backgroundColor = colors[random]
     })
+    updateGhostPiece();
 }
 
  // Undraw
@@ -96,9 +115,11 @@ document.addEventListener('keyup', control)
 
 function moveDown() {
     undraw();
+    undrawGhostPiece()
     currentPosition += width;
     console.log("CurrentPosition: ", currentPosition)
     draw();
+    drawGhostPiece();
     freeze();
 }
 
@@ -125,6 +146,7 @@ function freeze() {
 // Move the tetromino left unless it is at the edge or is blocked
 function moveLeft() {
     undraw()
+    undrawGhostPiece()
     const isAtLeftEdge = current.some(index => (currentPosition + index) % width === 0)
 
     if (!isAtLeftEdge) currentPosition -= 1
@@ -132,12 +154,14 @@ function moveLeft() {
     if (current.some(index => squares[currentPosition + index].classList.contains("taken"))) {
         currentPosition += 1
     }
+    updateGhostPiece(); // update ghost piece position
     draw()
 }
 
 // Move the tetromino right
 function moveRight() {
     undraw()
+    undrawGhostPiece()
     const isAtRightEdge = current.some(index => (currentPosition + index) % width === width - 1)
 
     if (!isAtRightEdge) currentPosition += 1
@@ -145,6 +169,7 @@ function moveRight() {
     if (current.some(index => squares[currentPosition + index].classList.contains("taken"))) {
         currentPosition -= 1
     }
+    updateGhostPiece(); // update ghost piece position
     draw()
 }
 
@@ -174,12 +199,47 @@ function checkRotatedPosition(P) {
 // Rotate the tetromino
 function rotate() {
     undraw()
+    undrawGhostPiece()
     currentRotation++
     if(currentRotation === current.length) { // if rotation goes to 4, go back to 0
         currentRotation =0
     }
     current = theTets[random][currentRotation]
     draw()
+    drawGhostPiece()
+}
+
+// New functions for ghost piece
+function isCollision(position) {
+    return current.some(index => squares[position + index].classList.contains('taken'));
+}
+
+function calculateGhostPiece() {
+    let ghostPosition = currentPosition;
+    while (!isCollision(ghostPosition + width) && ghostPosition < 190) {
+        ghostPosition += width;
+    }
+    ghostPiece = current.map(index => ghostPosition + index);
+}
+
+function drawGhostPiece() {
+    ghostPiece.forEach (index => {
+        if (index < width) return;
+        squares[index].classList.add("ghost");
+        squares[index].style.backgroundColor = ("ghost");
+    });
+}
+
+function undrawGhostPiece() {
+    ghostPiece.forEach (index => {
+        squares[index].classList.remove("ghost");
+        squares[index].style.backgroundColor = "";
+    });
+}
+
+function updateGhostPiece() {
+    calculateGhostPiece();
+    drawGhostPiece();
 }
 
 // Show the up-next tetromino in the mini-grid
@@ -190,11 +250,14 @@ const displayIndex = 0
 
 // The Tetros without rotations
 const upNextTetro = [
-    [1, displayWidth+1, displayWidth*2+1, 2], // jTet
-    [0, displayWidth, displayWidth+1, displayWidth*2+1], // zTet
-    [1,displayWidth,displayWidth+1,displayWidth+2], // tTet
+    [displayWidth, displayWidth+1, displayWidth+2, displayWidth+3], //itet
     [0, 1, displayWidth, displayWidth+1], // oTet
-    [1, displayWidth+1, displayWidth*2+1, displayWidth*3+1] // iTet
+    [1,displayWidth,displayWidth+1, displayWidth+2], // tTet
+    [1, 2, displayWidth, displayWidth+1], //sTet
+    [0, 1, displayWidth+1, displayWidth+2], // zTet
+    [1, displayWidth+1, displayWidth*2+1, 2], // jTet
+    [displayWidth, displayWidth+1,displayWidth+2, 2] // lTet
+  
 ]
 // Display the next shape in the mini-grid display
 function displayShape() {
@@ -223,6 +286,15 @@ startBtn.addEventListener('click', () => {
     }
 })
 
+// Recalculate and redraw ghost piece
+function updateGhostPieceAfterClearingRow() {
+    undrawGhostPiece();
+
+    
+    currentPosition -= width; // Adjust the current position to account for cleared row
+    calculateGhostPiece();
+    drawGhostPiece();
+}
 
 // Add score
 function addScore() {
@@ -242,6 +314,8 @@ function addScore() {
             squares = squaresRemoved.concat(squares)
             squares.forEach(cell => grid.appendChild(cell))
             // Remove the row
+            console.log("Row complete")
+            updateGhostPieceAfterClearingRow();
         }
     }
 }
