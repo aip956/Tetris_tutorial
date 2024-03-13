@@ -55,3 +55,12 @@ from draw:
 //     squares = removedRow.concat(squares);
 //     squares.forEach(cell => grid.appendChild(cell));
 // }
+
+/*
+119; moveDown
+96: undraw
+
+
+
+
+*/

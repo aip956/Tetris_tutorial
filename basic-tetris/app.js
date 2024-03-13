@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let ghostPiece;
     const colors = [
         'cyan',
-        'yellow',
+        'pink',
         'magenta',
         'lime',
         'red', 
@@ -93,9 +93,12 @@ function draw() {
  // Undraw
 function undraw() {
     current.forEach(index => {
+        console.log("96currPos: ", currentPosition)
+        console.log("96Index: ", index)
         squares[currentPosition + index].classList.remove("tetro")
         squares[currentPosition + index].style.backgroundColor = ''
     })
+    console.log("101undraw")
 }
 
 
@@ -114,19 +117,28 @@ function control(e) {
 document.addEventListener('keyup', control)
 
 function moveDown() {
+    console.log("119movedown")
     undraw();
     undrawGhostPiece()
+    // Check if the Tet has reached the top row
+    if (current.some(index => currentPosition + index >= width * (width - 1))) {
+        // Tet has reached top row
+        console.log("125movedownIFstate")
+        gameOver();
+        return;
+    }
     currentPosition += width;
-    console.log("CurrentPosition: ", currentPosition)
+    console.log("127CurrentPosition: ", currentPosition)
     draw();
     drawGhostPiece();
     freeze();
+    console.log("132")
 }
 
 // freeze at bottom
 function freeze() {
 //     if (current.some(index => squares[currentPosition + index + width] === undefined || squares[currentPosition + index + width].classList.contains("taken"))) {
-
+        console.log("Start freeze")
     if (current.some(index => squares[currentPosition + index + width].classList.contains("taken"))) {
         current.forEach(index => squares[currentPosition + index].classList.add("taken"))
         // Start a new tetromino falling
@@ -141,10 +153,12 @@ function freeze() {
         addScore()
         gameOver()
     }
+    console.log("End freeze")
 }
 
 // Move the tetromino left unless it is at the edge or is blocked
 function moveLeft() {
+    console.log("158 moveLeft")
     undraw()
     undrawGhostPiece()
     const isAtLeftEdge = current.some(index => (currentPosition + index) % width === 0)
@@ -154,12 +168,15 @@ function moveLeft() {
     if (current.some(index => squares[currentPosition + index].classList.contains("taken"))) {
         currentPosition += 1
     }
+    console.log("159currentPosition: ", currentPosition)
     updateGhostPiece(); // update ghost piece position
     draw()
+    console.log("171 end moveLeft")
 }
 
 // Move the tetromino right
 function moveRight() {
+    console.log("176 moveRight")
     undraw()
     undrawGhostPiece()
     const isAtRightEdge = current.some(index => (currentPosition + index) % width === width - 1)
@@ -169,19 +186,24 @@ function moveRight() {
     if (current.some(index => squares[currentPosition + index].classList.contains("taken"))) {
         currentPosition -= 1
     }
+    console.log("174currentPosition: ", currentPosition)
     updateGhostPiece(); // update ghost piece position
     draw()
+    console.log("189 moveRight")
 }
 
 // Fix rotation of tet at the edge
 function isAtRight() {
+    console.log("194 isAtRight")
     return current.some(index => (currentPosition + index + 1) % width === 0)
 }
 function isAtLeft() {
+    console.log("198 isAtLeft")
     return current.some(index => (currentPosition + index) % width === 0)
 }
 
 function checkRotatedPosition(P) {
+    console.log("203checkRot")
     P = P || currentPosition // get current position. Then check if the piece is near the left side.
     if ((P + 1) % width < 4) { // add 1 because the pos ind can be 1 less than where the piece is
         if (isAtRight()) {  // use actual position to check if it's fliped over to right side
@@ -195,9 +217,11 @@ function checkRotatedPosition(P) {
             checkRotatedPosition(P)
         }
     }
+    console.log("217checkRot")
 }
 // Rotate the tetromino
 function rotate() {
+    console.log("221rotate")
     undraw()
     undrawGhostPiece()
     currentRotation++
@@ -207,37 +231,47 @@ function rotate() {
     current = theTets[random][currentRotation]
     draw()
     drawGhostPiece()
+    console.log("231rotate")
 }
 
 // New functions for ghost piece
 function isCollision(position) {
+    console.log("236isColl")
+    console.log("237pos: ", position)
     return current.some(index => squares[position + index].classList.contains('taken'));
 }
 
 function calculateGhostPiece() {
+    console.log("242calcGhost")
     let ghostPosition = currentPosition;
     while (!isCollision(ghostPosition + width) && ghostPosition < 190) {
         ghostPosition += width;
     }
     ghostPiece = current.map(index => ghostPosition + index);
+    console.log("248calcGhost")
 }
 
 function drawGhostPiece() {
+    console.log("252drawGhost")
     ghostPiece.forEach (index => {
         if (index < width) return;
         squares[index].classList.add("ghost");
         squares[index].style.backgroundColor = ("ghost");
     });
+    console.log("258drawGhost")
 }
 
 function undrawGhostPiece() {
+    console.log("262UndrawGhost")
     ghostPiece.forEach (index => {
         squares[index].classList.remove("ghost");
         squares[index].style.backgroundColor = "";
     });
+    console.log("267UndrawGhost")
 }
 
 function updateGhostPiece() {
+    console.log("271updGhost")
     calculateGhostPiece();
     drawGhostPiece();
 }
@@ -262,6 +296,7 @@ const upNextTetro = [
 // Display the next shape in the mini-grid display
 function displayShape() {
     //remove any trace of a tetromino form the entire grid
+    console.log("296dispSh")
     displaySquares.forEach(square => {
       square.classList.remove('tetro')
       square.style.backgroundColor = ''
@@ -270,6 +305,7 @@ function displayShape() {
       displaySquares[displayIndex + index].classList.add('tetro')
       displaySquares[displayIndex + index].style.backgroundColor = colors[nextRandom]
     })
+    console.log("305dispSh")
   }
 
 
@@ -288,6 +324,7 @@ startBtn.addEventListener('click', () => {
 
 // Recalculate and redraw ghost piece
 function updateGhostPieceAfterClearingRow() {
+    console.log("324")
     undrawGhostPiece();
     for (let i = 0; i < 199; i+= width) {
         // Every square that makes a row
@@ -305,7 +342,7 @@ function updateGhostPieceAfterClearingRow() {
             squares = squaresRemoved.concat(squares)
             squares.forEach(cell => grid.appendChild(cell))
             // Remove the row
-            console.log("Row complete")
+            console.log("310Row complete")
             if (i < width) {
                 // Adjust the currentPosition only if the row is at the bottom
                 currentPosition -= width;
@@ -317,10 +354,12 @@ function updateGhostPieceAfterClearingRow() {
     currentPosition -= width; // Adjust the current position to account for cleared row
     calculateGhostPiece();
     drawGhostPiece();
+    console.log("354")
 }
 
 // Add score
 function addScore() {
+    console.log("359addScore")
     for (let i = 0; i < 199; i += width) {
         // Every square that makes a row
         const row = [i, i+1, i+2, i+3, i+4, i+5, i+6, i+7, i+8, i+9] 
@@ -337,18 +376,46 @@ function addScore() {
             squares = squaresRemoved.concat(squares)
             squares.forEach(cell => grid.appendChild(cell))
             // Remove the row
-            console.log("Row complete")
+            console.log("342Row complete")
             updateGhostPieceAfterClearingRow();
         }
     }
+    console.log("380addScore")
 }
-
-// Game over
 function gameOver() {
+    console.log("383gameOver")
     if(current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
         scoreDisplay.innerHTML = 'end'
         clearInterval(timerId)
     }
+    console.log("388gameOver")
 }
+// Game over
+// function gameOver() {
+//     console.log("358currPos: ", currentPosition)
+//     // console.log("359ind: ", index)
+//     console.log("360width: ", width)
+//     // console.log("361bool: ", squares[currentPosition + index].classList.contains('taken'))
+//     // if(current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+//         // if(current.some(index => (currentPosition + index) < width || squares[currentPosition + index].classList.contains('taken'))) {
+//     if(current.some(index => {
+//         const position = currentPosition + index;
+//         console.log("366currPos: ", currentPosition)
+//         console.log("367ind: ", index)
+//         console.log("369pos: ", position)
+//         console.log("370width: ", width)
+//         console.log("369ret: ", position < width || squares[currentPosition + index].classList.contains('taken'))
+//         return position < width || squares[currentPosition + index].classList.contains('taken');
+//     })) {
+//         console.log("371")
+//         scoreDisplay.innerHTML = 'end'
+//         clearInterval(timerId)
+//         console.log("374")
+//     }
+//     console.log("376")
+// }
 }) // Ends the event listener line 1 
+
+
+
 
