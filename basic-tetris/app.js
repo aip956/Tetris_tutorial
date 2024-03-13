@@ -142,9 +142,13 @@ function moveDown() {
 // freeze at bottom
 function freeze() {
 //     if (current.some(index => squares[currentPosition + index + width] === undefined || squares[currentPosition + index + width].classList.contains("taken"))) {
-        console.log("Start freeze")
+        console.log("145Start freeze")
     if (current.some(index => squares[currentPosition + index + width].classList.contains("taken"))) {
-        current.forEach(index => squares[currentPosition + index].classList.add("taken"))
+        current.forEach(index => {
+            if (!ghostPiece.includes(currentPosition + index)) {
+                squares[currentPosition + index].classList.add("taken");
+            }
+        });
         // Start a new tetromino falling
         random = nextRandom
         nextRandom = Math.floor(Math.random() * theTets.length)
@@ -157,7 +161,7 @@ function freeze() {
         addScore()
         gameOver()
     }
-    console.log("End freeze")
+    console.log("164End freeze")
 }
 
 // Move the tetromino left unless it is at the edge or is blocked
