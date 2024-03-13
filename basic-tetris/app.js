@@ -121,12 +121,16 @@ function moveDown() {
     undraw();
     undrawGhostPiece()
     // Check if the Tet has reached the top row
-    if (current.some(index => currentPosition + index >= width * (width - 1))) {
-        // Tet has reached top row
-        console.log("125movedownIFstate")
+    if (current.some(index => {
+        console.log("Checking index:", index);
+        console.log("Current position + index:", currentPosition + index);
+        return currentPosition + index >= width * (width - 1);
+    })) {
+        console.log("129movedownIFstate")
         gameOver();
         return;
     }
+
     currentPosition += width;
     console.log("127CurrentPosition: ", currentPosition)
     draw();
